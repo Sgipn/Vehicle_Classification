@@ -1,1 +1,3 @@
-# Vehicle_Classification
+# Vehicle Classification
+
+Collaborators: Jasper Tsai, Wyatt Workman, Kevin Xu
