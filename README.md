@@ -1,7 +1,5 @@
 # Vehicle Classification
 
-*To avoid pain and suffering, don't change file structure.*
-
 Current Progress:
 - Preprocessing:
   - Image vectors have same dimension. 
