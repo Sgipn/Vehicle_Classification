@@ -19,29 +19,26 @@ class knn:
         m,p = np.shape(test_X)
         minimum_index = 0
         predicted_labels = list()
+        dist = dict({'manhattan':1,'euclidean':2,'cubic':3})
 
         for i in range(m):                     # predicting class of 25 vectors 
             distance = np.zeros(n)             # distance of all 125 training vectors from test vector i
             neighbor_labels = list()
             for j in range(n):                 # finding distance of every training vector from test vector
-                if distance_type == 'manhattan':
-                    distance[j] = np.linalg.norm(test_X[i,:] - train_X[j,:],ord=1) 
-                elif distance_type == 'euclidean':
-                    distance[j] = np.linalg.norm(test_X[i,:] - train_X[j,:],ord=2) 
-                elif distance_type == 'cubic':
-                    distance[j] = np.linalg.norm(test_X[i,:] - train_X[j,:],ord=3) 
+                distance[j] = np.linalg.norm(test_X[i,:] - train_X[j,:],ord=dist[distance_type]) 
             ranked_distance = np.argsort(distance)                               # ranked_distance: indexes of n vectors sorted by increasing distance
-            for l in range(k):                                         
-                neighbor_labels.append(train_y[ranked_distance[l]])              # finding labels of neighbors
-        
+            
+            for l in ranked_distance[0:k]:
+                neighbor_labels.append(train_y[l]) # finding labels of neighbors
+
             pred_label = max(set(neighbor_labels), key = neighbor_labels.count)  # choosing majority label
             predicted_labels.append(pred_label)                                  # appending majority label of ith observation
-            
+
         accuracy_scratch = sum(test_y == predicted_labels) / len(test_y)
-        
+
         return accuracy_scratch # returns prediction accuracy
         
-    def k_tune(train_X,train_y,distance_type,folds):
+    def k_tune(self,train_X,train_y,distance_type,folds):
         ''' The idea is to split training set into l parts. train on l-1 partitions and test on 1 partition.
             Then, find the mean accuracy of all l models for each value k (neighbors). 
             The optimal k will be found for all distance types. 
@@ -49,16 +46,16 @@ class knn:
             input expectations:
                 distance_type (string): manhattan, euclidean, or cubic.
                 folds (int) 
-                train_X (nxp numpy array) (The whole dataset is (m+n) x p)
-                test_X (mxp numpy array) 
+                train_X (nxp numpy array) 
+                train_y (nx1 numpy array) 
 
         '''
         kf = KFold(n_splits = folds, random_state = True, shuffle = True)
-        neighbors = [1,2,3,4,5,6]
+        neighbors = [1,3,5,7,9]
         accuracy_mat = list()
         mean_accuracy = list()
 
-        for train_index, test_index in kf.split(train_X):       # Iterate through each of 10 folds for each lamda 
+        for train_index, test_index in kf.split(train_X):       # Iterate through each of l folds for each lamda 
             temp_X_train = train_X[train_index]
             temp_y_train = train_y[train_index]
             temp_X_test = train_X[test_index]
@@ -69,6 +66,7 @@ class knn:
             for k in range(len(neighbors)):
                 accuracy_vec[k] = predict(temp_X_train,temp_y_train,temp_X_test,temp_y_test,neighbors[k],distance_type)
             accuracy_mat.append(accuracy_vec)
+            
         accuracy_mat = np.array(accuracy_mat) 
         folds,neighbor = np.shape(accuracy_mat)
         for i in range(neighbor):
@@ -80,7 +78,8 @@ class knn:
         max_index = mean_accuracy.index(max_value)         # contains the mean prediction accuracy for each k neighbors value.
         
         # returned: First object: best k neighbors. Second object: list of prediction accuracies for all values of k
-        return neighbors[max_index], mean_accuracy 
+        return neighbors[max_index], max_value
+
 
             
 
