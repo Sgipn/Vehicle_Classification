@@ -21,12 +21,12 @@ class knn:
         predicted_labels = list()
         dist = dict({'manhattan':1,'euclidean':2,'cubic':3})
 
-        for i in range(m):                     # predicting class of 25 vectors 
-            distance = np.zeros(n)             # distance of all 125 training vectors from test vector i
+        for i in range(m):                     # predicting class of vectors in test set 
+            distance = np.zeros(n)             # distance of all training vectors from test vector i
             neighbor_labels = list()
-            for j in range(n):                 # finding distance of every training vector from test vector
+            for j in range(n):                 # finding distance of every training vector from test vector i
                 distance[j] = np.linalg.norm(test_X[i,:] - train_X[j,:],ord=dist[distance_type]) 
-            ranked_distance = np.argsort(distance)                               # ranked_distance: indexes of n vectors sorted by increasing distance
+            ranked_distance = np.argsort(distance)                               # ranked_distance: indices of distance-increasing order
             
             for l in ranked_distance[0:k]:
                 neighbor_labels.append(train_y[l]) # finding labels of neighbors
